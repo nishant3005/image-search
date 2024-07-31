@@ -4,31 +4,36 @@ import ImageCard from '../components/ImageCard';
 import Pagination from '../components/Pagination';
 import TextField from '../components/TextField';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemedText from '../components/ThemedText';
 
 const Home = () => {
-  const [images, setImages] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { theme, images, setImages, searchQuery, setSearchQuery } = useTheme();
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
+  const perPage = 6;
 
   useEffect(() => {
-    if (searchQuery) {
-      fetchImages(searchQuery, page)
-        .then((response) => {
+    const fetchData = async () => {
+      if (searchQuery) {
+        try {
+          const response = await fetchImages(searchQuery, page, perPage);
           setImages(response.data.results);
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error(
             'Error fetching images:',
             error.response || error.message
           );
-        });
-    }
-  }, [searchQuery, page]);
+        }
+      }
+    };
+
+    fetchData();
+  }, [searchQuery, page, setImages]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
+    setPage(1);
   };
 
   const handlePageChange = (event, value) => {
@@ -44,16 +49,37 @@ const Home = () => {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
         alignItems: 'center',
+        fontFamily: theme.fontFamily,
+        fontSize: theme.fontSize,
       }}
     >
+      <div
+        style={{ marginTop: '20px', marginBottom: '30px', textAlign: 'center' }}
+      >
+        <div style={{ marginBottom: '10px' }}>
+          <ThemedText type="headline">
+            Welcome to the Image Search App
+          </ThemedText>
+        </div>
+        <ThemedText type="title">Search for Your Favorite Images</ThemedText>
+        <ThemedText type="description">
+          Find beautiful images from Unsplash.
+        </ThemedText>
+      </div>
       <TextField
         value={searchQuery}
         onChange={handleSearchChange}
         placeholder="Search images..."
       />
-      <div className="home-style">
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-evenly',
+          padding: '20px',
+        }}
+      >
         {images.map((image) => (
           <ImageCard
             key={image.id}
@@ -62,7 +88,7 @@ const Home = () => {
           />
         ))}
       </div>
-      <Pagination count={10} page={page} onChange={handlePageChange} />
+      <Pagination count={6} page={page} onChange={handlePageChange} />
     </div>
   );
 };
