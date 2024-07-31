@@ -19,8 +19,11 @@ const Home = () => {
       if (searchQuery) {
         try {
           const response = await fetchImages(searchQuery, page, perPage);
+        //   console.log(response.data);
           setTotalPages(Math.ceil(response.data.total_pages / perPage));
+        //   console.log(totalPages);
           setImages(response.data.results);
+        //   console.log(images.length);
         } catch (error) {
           console.error(
             'Error fetching images:',
@@ -45,6 +48,7 @@ const Home = () => {
   const handleImageClick = (image) => {
     navigate('/details', { state: { image } });
   };
+
 
   return (
     <div
