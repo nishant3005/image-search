@@ -10,6 +10,7 @@ import ThemedText from '../components/ThemedText';
 const Home = () => {
   const { theme, images, setImages, searchQuery, setSearchQuery } = useTheme();
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
   const perPage = 6;
 
@@ -18,6 +19,7 @@ const Home = () => {
       if (searchQuery) {
         try {
           const response = await fetchImages(searchQuery, page, perPage);
+          setTotalPages(Math.ceil(response.data.total_pages / perPage));
           setImages(response.data.results);
         } catch (error) {
           console.error(
@@ -52,6 +54,7 @@ const Home = () => {
         alignItems: 'center',
         fontFamily: theme.fontFamily,
         fontSize: theme.fontSize,
+        marginBottom: '30px',
       }}
     >
       <div
@@ -88,7 +91,7 @@ const Home = () => {
           />
         ))}
       </div>
-      <Pagination count={6} page={page} onChange={handlePageChange} />
+      <Pagination count={totalPages} page={page} onChange={handlePageChange} />
     </div>
   );
 };
